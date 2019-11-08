@@ -32,6 +32,7 @@ describe('PostsComponent', () => {
   it('should load a list of posts for the selected user', fakeAsync(() => {
     const httpTestingController = spectator.get(HttpTestingController);
 
+    
     spectator.detectChanges();
 
     expect(spectator.query(MatProgressBar)).toExist();
