@@ -7,7 +7,24 @@ import {
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
 
+import { defineGlobalsInjections } from '@ngneat/spectator';
+
+import { MatFormFieldModule, MatSelectModule } from '@angular/material';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
 declare const require: any;
+
+defineGlobalsInjections({
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatListModule,
+    MatProgressBarModule
+  ]
+});
 
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(

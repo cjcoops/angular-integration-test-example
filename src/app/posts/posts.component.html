@@ -1,0 +1,39 @@
+<form>
+  <mat-form-field>
+    <mat-label>Filter by user</mat-label>
+    <select
+      [formControl]="userFilterControl"
+      id="userFilterControl"
+      matNativeControl
+    >
+      <option value="null">All</option>
+      <option value="1">User 1</option>
+      <option value="2">User 2</option>
+      <option value="3">User 3</option>
+    </select>
+  </mat-form-field>
+
+  <mat-form-field>
+    <input
+      matInput
+      placeholder="Filter by title"
+      type="text"
+      [formControl]="searchTermControl"
+      id="searchTermControl"
+    />
+  </mat-form-field>
+</form>
+<h2>Posts</h2>
+
+<mat-progress-bar
+  *ngIf="loading$ | async; else postlist"
+  mode="indeterminate"
+></mat-progress-bar>
+
+<ng-template #postlist>
+  <mat-list>
+    <mat-list-item *ngFor="let post of posts$ | async">
+      {{ post.title | titlecase }}
+    </mat-list-item>
+  </mat-list>
+</ng-template>
