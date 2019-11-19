@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DataService } from '../data.service';
 import { map } from 'rxjs/operators';
@@ -14,10 +13,7 @@ export interface PostsState {
   providedIn: 'root'
 })
 export class PostsService {
-  constructor(
-    private dataService: DataService,
-    private httpClient: HttpClient
-  ) {}
+  constructor(private dataService: DataService) {}
 
   private subject = new BehaviorSubject<PostsState>({
     posts: null,
@@ -27,14 +23,11 @@ export class PostsService {
   posts$ = this.subject.asObservable().pipe(map(state => state.posts));
   loading$ = this.subject.asObservable().pipe(map(state => state.loading));
 
-  load(userId: number): Observable<void> {
+  load(userId: string): Observable<void> {
     this.subject.next({ ...this.subject.getValue(), loading: true });
-    const url =
-      `https://jsonplaceholder.typicode.com/posts` +
-      (userId ? `?userId=${userId}` : '');
-
-    return this.httpClient
-      .get<Post[]>(url)
+    
+    return this.dataService
+      .fetch(userId)
       .pipe(
         map(response => this.subject.next({ posts: response, loading: false }))
       );

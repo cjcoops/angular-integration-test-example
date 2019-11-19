@@ -23,7 +23,7 @@ export class PostsComponent implements OnInit, OnDestroy {
     this.userFilterControl.valueChanges
       .pipe(
         startWith(null),
-        switchMap(userId => this.service.load(+userId)),
+        switchMap(userId => this.service.load(userId)),
         untilDestroyed(this)
       )
       .subscribe();

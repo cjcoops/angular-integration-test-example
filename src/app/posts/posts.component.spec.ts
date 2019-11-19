@@ -10,85 +10,21 @@ import { fakeAsync } from '@angular/core/testing';
 import { mapTo } from 'rxjs/operators';
 import { PostsComponent } from './posts.component';
 import { DataService } from '../data.service';
-import { MatProgressBar } from '@angular/material';
-import {
-  HttpClientTestingModule,
-  HttpTestingController
-} from '@angular/common/http/testing';
-import { HttpClient, HttpBackend } from '@angular/common/http';
+import { MatProgressBar, MatListItem } from '@angular/material';
 
 describe('PostsComponent', () => {
   let spectator: Spectator<PostsComponent>;
   const createComponent = createComponentFactory({
     component: PostsComponent,
     declarations: [],
-    imports: [FormsModule, ReactiveFormsModule, HttpClientTestingModule],
+    imports: [FormsModule, ReactiveFormsModule],
     mocks: [DataService],
     detectChanges: false
   });
 
   beforeEach(() => (spectator = createComponent()));
 
-  it('should load a list of posts for the selected user', fakeAsync(() => {
-    const httpTestingController = spectator.get(HttpTestingController);
-
-    
-    spectator.detectChanges();
-
-    expect(spectator.query(MatProgressBar)).toExist();
-    expect(spectator.query(byText('My Post'))).not.toExist();
-
-    const mockRequestAll = httpTestingController.expectOne(
-      'https://jsonplaceholder.typicode.com/posts'
-    );
-    expect(mockRequestAll.request.method).toEqual('GET');
-
-    mockRequestAll.flush([
-      {
-        userId: 1,
-        id: 1,
-        title: 'My post',
-        body: 'st rerum tempore vitaeequi'
-      }
-    ]);
-
-    spectator.detectChanges();
-
-    expect(spectator.query(MatProgressBar)).not.toExist();
-    expect(spectator.query(byText('My Post'))).toExist();
-
-    const select = spectator.query(
-      byLabel('Filter by user')
-    ) as HTMLSelectElement;
-
-    spectator.selectOption(select, '2', { emitEvents: true });
-
-    const mockRequestUser2 = httpTestingController.expectOne(
-      'https://jsonplaceholder.typicode.com/posts?userId=2'
-    );
-
-    expect(mockRequestUser2.request.method).toEqual('GET');
-
-    mockRequestUser2.flush([
-      {
-        userId: 2,
-        id: 2,
-        title: 'Another post',
-        body: 'st rerum tempore vitaeequi'
-      }
-    ]);
-
-    spectator.detectChanges();
-
-    expect(select).toHaveSelectedOptions('2');
-
-    expect(spectator.query(byText('Another Post'))).toExist();
-
-
-    httpTestingController.verify();
-  }));
-
-  xit('should call the api with user id in the query params', fakeAsync(() => {
+  it('should load a list of posts for all users by default', fakeAsync(() => {
     const dataService = spectator.get(DataService);
 
     dataService.fetch.and.returnValue(
@@ -97,7 +33,43 @@ describe('PostsComponent', () => {
           {
             userId: 1,
             id: 1,
-            title: 'My post',
+            title: 'First Post',
+            body: 'st rerum tempore vitaeequi'
+          },
+          {
+            userId: 2,
+            id: 2,
+            title: 'Another Post',
+            body: 'st rerum tempore vitaeequi'
+          }
+        ])
+      )
+    );
+
+    spectator.detectChanges();
+
+    expect(spectator.query(MatProgressBar)).toExist();
+    expect(spectator.query(byText('First Post'))).not.toExist();
+
+    spectator.tick(100);
+
+    spectator.detectChanges();
+
+    expect(spectator.query(MatProgressBar)).not.toExist();
+    expect(spectator.queryAll(MatListItem).length).toEqual(2);
+    expect(spectator.query(byText('First Post'))).toExist();
+  }));
+
+  it('should load a list of posts for the selected user', fakeAsync(() => {
+    const dataService = spectator.get(DataService);
+
+    dataService.fetch.and.returnValue(
+      timer(100).pipe(
+        mapTo([
+          {
+            userId: 1,
+            id: 1,
+            title: 'My Post',
             body: 'st rerum tempore vitaeequi'
           }
         ])
@@ -108,7 +80,16 @@ describe('PostsComponent', () => {
 
     spectator.tick(100);
 
-    dataService.fetch.and.returnValue(of([]));
+    dataService.fetch.and.returnValue(
+      of([
+        {
+          userId: 2,
+          id: 2,
+          title: 'Another Post',
+          body: 'st rerum tempore vitaeequi'
+        }
+      ])
+    );
 
     const select = spectator.query(
       byLabel('Filter by user')
@@ -121,6 +102,9 @@ describe('PostsComponent', () => {
     expect(select).toHaveSelectedOptions('2');
 
     expect(dataService.fetch).toHaveBeenCalledTimes(2);
-    expect(dataService.fetch.calls.allArgs()).toEqual([[0], [2]]);
+    expect(dataService.fetch.calls.allArgs()).toEqual([[null], ['2']]);
+    expect(spectator.queryAll(MatListItem).length).toEqual(1);
+    expect(spectator.query(byText('First Post'))).not.toExist();
+    expect(spectator.query(byText('Another Post'))).toExist();
   }));
 });
