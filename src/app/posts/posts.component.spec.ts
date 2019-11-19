@@ -81,21 +81,28 @@ describe('PostsComponent', () => {
     spectator.tick(100);
 
     dataService.fetch.and.returnValue(
-      of([
-        {
-          userId: 2,
-          id: 2,
-          title: 'Another Post',
-          body: 'st rerum tempore vitaeequi'
-        }
-      ])
+      timer(100).pipe(
+        mapTo([
+          {
+            userId: 2,
+            id: 2,
+            title: 'Another Post',
+            body: 'st rerum tempore vitaeequi'
+          }
+        ])
+      )
     );
 
     const select = spectator.query(
       byLabel('Filter by user')
     ) as HTMLSelectElement;
 
-    spectator.selectOption(select, '2', { emitEvents: true });
+    spectator.selectOption(select, '2');
+
+    expect(spectator.query(MatProgressBar)).toExist();
+    expect(spectator.query(byText('First Post'))).not.toExist();
+
+    spectator.tick(100);
 
     spectator.detectChanges();
 
@@ -104,7 +111,7 @@ describe('PostsComponent', () => {
     expect(dataService.fetch).toHaveBeenCalledTimes(2);
     expect(dataService.fetch.calls.allArgs()).toEqual([[null], ['2']]);
     expect(spectator.queryAll(MatListItem).length).toEqual(1);
-    expect(spectator.query(byText('First Post'))).not.toExist();
+    expect(spectator.query(MatProgressBar)).not.toExist();
     expect(spectator.query(byText('Another Post'))).toExist();
   }));
 });
