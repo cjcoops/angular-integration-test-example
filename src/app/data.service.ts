@@ -9,7 +9,7 @@ import { Post } from './posts/post.model';
 export class DataService {
   constructor(private http: HttpClient) {}
 
-  fetch(userId: string): Observable<Post[]> {
+  fetch(userId: number): Observable<Post[]> {
     const url =
       `https://jsonplaceholder.typicode.com/posts` +
       (userId ? `?userId=${userId}` : '');

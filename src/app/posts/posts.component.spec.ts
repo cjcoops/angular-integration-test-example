@@ -51,6 +51,12 @@ describe('PostsComponent', () => {
     expect(spectator.query(MatProgressBar)).toExist();
     expect(spectator.query(byText('First Post'))).not.toExist();
 
+    const select = spectator.query(
+      byLabel('Filter by user')
+    ) as HTMLSelectElement;
+
+    expect(select).toHaveSelectedOptions(spectator.query(byText('All')) as HTMLOptionElement);
+
     spectator.tick(100);
 
     spectator.detectChanges();
@@ -97,7 +103,7 @@ describe('PostsComponent', () => {
       byLabel('Filter by user')
     ) as HTMLSelectElement;
 
-    spectator.selectOption(select, '2');
+    spectator.selectOption(select, spectator.query(byText('User 2')) as HTMLOptionElement);
 
     expect(spectator.query(MatProgressBar)).toExist();
     expect(spectator.query(byText('First Post'))).not.toExist();
@@ -106,10 +112,8 @@ describe('PostsComponent', () => {
 
     spectator.detectChanges();
 
-    expect(select).toHaveSelectedOptions('2');
-
     expect(dataService.fetch).toHaveBeenCalledTimes(2);
-    expect(dataService.fetch.calls.allArgs()).toEqual([[null], ['2']]);
+    expect(dataService.fetch.calls.allArgs()).toEqual([[null], [2]]);
     expect(spectator.queryAll(MatListItem).length).toEqual(1);
     expect(spectator.query(MatProgressBar)).not.toExist();
     expect(spectator.query(byText('Another Post'))).toExist();

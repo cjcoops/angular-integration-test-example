@@ -23,7 +23,7 @@ export class PostsService {
   posts$ = this.subject.asObservable().pipe(map(state => state.posts));
   loading$ = this.subject.asObservable().pipe(map(state => state.loading));
 
-  load(userId: string): Observable<void> {
+  load(userId: number): Observable<void> {
     this.subject.next({ ...this.subject.getValue(), loading: true });
     
     return this.dataService
