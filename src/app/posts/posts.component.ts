@@ -11,7 +11,7 @@ import { Post } from './post.model';
   templateUrl: './posts.component.html',
   styleUrls: ['./posts.component.css']
 })
-export class PostsComponent implements OnInit, OnDestroy {
+export class PostsComponent implements OnInit {
   searchTermControl = new FormControl('');
   userFilterControl = new FormControl(null);
   posts$: Observable<Post[]>;
@@ -20,21 +20,10 @@ export class PostsComponent implements OnInit, OnDestroy {
   constructor(private service: PostsService) {}
 
   ngOnInit(): void {
+    // request the posts data
     this.service.load().subscribe();
-    // this.userFilterControl.valueChanges
-    //   .pipe(
-    //     startWith(null),
-    //     switchMap(userId => this.service.load(userId)),
-    //     untilDestroyed(this)
-    //   )
-    //   .subscribe();
 
-    // this.posts$ = this.searchTermControl.valueChanges.pipe(
-    //   debounceTime(300),
-    //   startWith(''),
-    //   switchMap(term => this.service.getPosts(term))
-    // );
-
+    // listen for changes in the searchterm  and the user filters and get the filtered posts
     this.posts$ = combineLatest(
       this.searchTermControl.valueChanges.pipe(
         debounceTime(300),
@@ -47,8 +36,7 @@ export class PostsComponent implements OnInit, OnDestroy {
       })
     );
 
+    // loading state observable
     this.loading$ = this.service.loading$;
   }
-
-  ngOnDestroy(): void {}
 }

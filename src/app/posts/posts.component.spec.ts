@@ -14,7 +14,6 @@ import { DataService } from '../data.service';
 import { MatProgressBar, MatListItem } from '@angular/material';
 
 describe('PostsComponent', () => {
-  let spectator: Spectator<PostsComponent>;
   const createComponent = createComponentFactory({
     component: PostsComponent,
     declarations: [],
@@ -23,51 +22,59 @@ describe('PostsComponent', () => {
     detectChanges: false
   });
 
-  beforeEach(() => (spectator = createComponent()));
-
   it('should load a list of posts for all users by default', fakeAsync(() => {
+    // create the test component
+    const spectator = createComponent();
+
+    // get the mocked instance of the DataService
     const dataService = spectator.get(DataService);
 
+    // mock the fetch function to wait 100ms and return 2 posts
     dataService.fetch.and.returnValue(
       timer(100).pipe(
         mapTo([
           {
             userId: 1,
             id: 1,
-            title: 'First Post',
+            title: 'First Post'
           },
           {
             userId: 2,
             id: 2,
-            title: 'Another Post',
+            title: 'Another Post'
           }
         ])
       )
     );
 
+    // run ngOnInit
     spectator.detectChanges();
 
+    // assert the the progress bar is showing
     expect(spectator.query(MatProgressBar)).toExist();
     expect(spectator.query(byText('First Post'))).not.toExist();
 
+    // get the user select element
     const select = spectator.query(
       byLabel('Filter by user')
     ) as HTMLSelectElement;
 
+    // assert that it is showing 'All' by default
     expect(select).toHaveSelectedOptions(
       spectator.query(byText('All')) as HTMLOptionElement
     );
 
+    // advance the time 100ms to simulate the HTTP request being made
     spectator.tick(100);
 
-    spectator.detectChanges();
-
+    // assert that the progress bar is not showing and that both our posts are showing
     expect(spectator.query(MatProgressBar)).not.toExist();
     expect(spectator.queryAll(MatListItem).length).toEqual(2);
     expect(spectator.query(byText('First Post'))).toExist();
   }));
 
   it('should filter the posts for the selected user', fakeAsync(() => {
+    const spectator = createComponent();
     const dataService = spectator.get(DataService);
 
     dataService.fetch.and.returnValue(
@@ -106,6 +113,7 @@ describe('PostsComponent', () => {
   }));
 
   it('should filter the posts by a search term', fakeAsync(() => {
+    const spectator = createComponent();
     const dataService = spectator.get(DataService);
 
     dataService.fetch.and.returnValue(
