@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { DataService } from '../data.service';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Post } from './post.model';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 export interface PostsState {
   posts: Post[];
@@ -23,19 +23,21 @@ export class PostsService {
   posts$ = this.subject.asObservable().pipe(map(state => state.posts));
   loading$ = this.subject.asObservable().pipe(map(state => state.loading));
 
-  load(userId: number): Observable<void> {
+  load() {
     this.subject.next({ ...this.subject.getValue(), loading: true });
-    
+
     return this.dataService
-      .fetch(userId)
+      .fetch()
       .pipe(
-        map(response => this.subject.next({ posts: response, loading: false }))
+        tap(response => this.subject.next({ posts: response, loading: false }))
       );
   }
 
-  getPosts(term: string) {
+  getPosts(searchTerm: string, userId: number) {
     const filterFunction = (post: Post) =>
-      !term || post.title.toLowerCase().includes(term.toLowerCase());
+      (!searchTerm ||
+        post.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!userId || post.userId === userId);
 
     return this.posts$.pipe(map(products => products.filter(filterFunction)));
   }
