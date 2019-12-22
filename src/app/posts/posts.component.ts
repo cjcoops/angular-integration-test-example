@@ -1,8 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable, combineLatest } from 'rxjs';
 import { PostsService } from './posts.service';
-import { untilDestroyed } from 'ngx-take-until-destroy';
 import { debounceTime, switchMap, startWith } from 'rxjs/operators';
 import { Post } from './post.model';
 
@@ -23,7 +22,7 @@ export class PostsComponent implements OnInit {
     // request the posts data
     this.service.load().subscribe();
 
-    // listen for changes in the searchterm  and the user filters and get the filtered posts
+    // listen for changes in the search term and the user filter and get the filtered posts
     this.posts$ = combineLatest(
       this.searchTermControl.valueChanges.pipe(
         debounceTime(300),

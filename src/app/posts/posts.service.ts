@@ -15,24 +15,22 @@ export interface PostsState {
 export class PostsService {
   constructor(private dataService: DataService) {}
 
-  // store the posts and loading state
-  private subject = new BehaviorSubject<PostsState>({
-    posts: null,
-    loading: true
-  });
+  private posts = new BehaviorSubject<Post[]>(null);
+  private loading = new BehaviorSubject<boolean>(true);
 
-  posts$ = this.subject.asObservable().pipe(map(state => state.posts));
-  loading$ = this.subject.asObservable().pipe(map(state => state.loading));
+  posts$ = this.posts.asObservable();
+  loading$ = this.loading.asObservable();
 
   // call the DataService which is responsible for making HTTP requests and updates the posts and loading states
   load() {
-    this.subject.next({ ...this.subject.getValue(), loading: true });
+    this.loading.next(true);
 
-    return this.dataService
-      .fetch()
-      .pipe(
-        tap(response => this.subject.next({ posts: response, loading: false }))
-      );
+    return this.dataService.fetch().pipe(
+      tap(response => {
+        this.posts.next(response);
+        this.loading.next(false);
+      })
+    );
   }
 
   // return an observable with the filtered posts
