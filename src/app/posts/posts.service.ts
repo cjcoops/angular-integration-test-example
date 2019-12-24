@@ -4,11 +4,6 @@ import { map, tap } from 'rxjs/operators';
 import { Post } from './post.model';
 import { BehaviorSubject } from 'rxjs';
 
-export interface PostsState {
-  posts: Post[];
-  loading: boolean;
-}
-
 @Injectable({
   providedIn: 'root'
 })

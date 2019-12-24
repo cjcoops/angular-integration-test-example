@@ -71,6 +71,8 @@ describe('PostsComponent', () => {
     expect(spectator.query(MatProgressBar)).not.toExist();
     expect(spectator.queryAll(MatListItem).length).toEqual(2);
     expect(spectator.query(byText('First Post'))).toExist();
+
+    expect(dataService.fetch).toHaveBeenCalledTimes(1);
   }));
 
   it('should filter the posts for the selected user', fakeAsync(() => {
